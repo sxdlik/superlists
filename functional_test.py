@@ -43,7 +43,7 @@ class NewVisitorTest(unittest.TestCase):
         input_box.send_keys(Keys.ENTER)
         time.sleep(1)
 
-        self.check_for_row_in_list_table('1： 东东学习Django')
+        self.check_for_row_in_list_table('1: 东东学习Django')
 
         # 页面中又显示了一个文本框，可以输入其他的待办事项
         # 他输入了 "学习Python"
