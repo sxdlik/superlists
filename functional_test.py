@@ -40,13 +40,20 @@ class NewVisitorTest(unittest.TestCase):
 
         table = self.browser.find_element_by_id('id_list_table')
         rows = table.find_elements_by_tag_name('tr')
-        self.assertTrue(any(row.text == '1: 东东学习Django' for row in rows))
+        self.assertIn('1: 东东学习Django', [row.text for row in rows])
 
         # 页面中又显示了一个文本框，可以输入其他的待办事项
         # 他输入了 "学习Python"
-        self.fail('本次测试完成')
+        input_box = self.browser.find_element_by_id('id_new_item')
+        input_box.send_keys('东东学习Python')
+        input_box.send_keys(Keys.ENTER)
+        time.sleep(1)
 
         # 页面再次更新，他的清单中显示了这两个待办事项
+        table = self.browser.find_element_by_id('id_list_table')
+        rows = table.find_elements_by_tag_name('tr')
+        self.assertIn('1: 东东学习Django', [row.text for row in rows])
+        self.assertIn('2: 东东学习Python', [row.text for row in rows])
 
         # 东东想知道这个网站是否会记住他的清单
         # 他看到网站为他生成了一个唯一的URL
@@ -55,7 +62,7 @@ class NewVisitorTest(unittest.TestCase):
         # 他访问这个URL，发现他的待办事列表还在
 
         # 他很满意，去睡觉了
-
+        self.fail('本次测试完成')
 
 if __name__ == '__main__':
     unittest.main()
