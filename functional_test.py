@@ -1,6 +1,8 @@
 import unittest
+import time
 
 from selenium import webdriver
+from selenium.webdriver.common.keys import Keys
 
 
 class NewVisitorTest(unittest.TestCase):
@@ -21,17 +23,28 @@ class NewVisitorTest(unittest.TestCase):
 
         # 他注意到网页的标题和头部都包含有 "待办事项" 这个词
         self.assertIn('待办事项', self.browser.title)
-        self.fail('本次测试完成')
+        header_text = self.browser.find_element_by_tag_name('h1').text
+        self.assertIn('待办事项', header_text)
 
         # 应该邀请他输入一个待办事项
+        input_box = self.browser.find_element_by_id('id_new_item')
+        self.assertEqual(input_box.get_attribute('placeholder'), '请输入你的待办事项')
 
-        # 他在一个文本框中输入了 "学习Django"
+        # 他在一个文本框中输入了 "东东学习Django"
+        input_box.send_keys('东东学习Django')
 
         # 他按下回车键后，页面更新了
-        # 待办事项中显示了 "1：学习Django"
+        # 待办事项中显示了 "1：东东学习Django"
+        input_box.send_keys(Keys.ENTER)
+        time.sleep(1)
+
+        table = self.browser.find_element_by_id('id_list_table')
+        rows = table.find_elements_by_tag_name('tr')
+        self.assertTrue(any(row.text == '1: 东东学习Django' for row in rows))
 
         # 页面中又显示了一个文本框，可以输入其他的待办事项
         # 他输入了 "学习Python"
+        self.fail('本次测试完成')
 
         # 页面再次更新，他的清单中显示了这两个待办事项
 
