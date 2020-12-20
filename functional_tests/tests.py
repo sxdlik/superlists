@@ -62,15 +62,51 @@ class NewVisitorTest(LiveServerTestCase):
         input_box.send_keys(Keys.ENTER)
 
         # 页面再次更新，他的清单中显示了这两个待办事项
-        self.wait_for_row_in_list_table('1: 东东学习Django')
         self.wait_for_row_in_list_table('2: 东东学习Python')
-
-        # 东东想知道这个网站是否会记住他的清单
-        # 他看到网站为他生成了一个唯一的URL
-        # 而且页面中有一些文字解说这个功能
-
-        # 他访问这个URL，发现他的待办事列表还在
+        self.wait_for_row_in_list_table('1: 东东学习Django')
 
         # 他很满意，去睡觉了
-        self.fail('本次测试完成')
 
+    def test_multiple_users_can_start_lists_at_different_urls(self):
+        """ 测试多用户分别开始一个新的待办事项列表 """
+        # 东东新建一个待办事项清单
+        self.browser.get(self.live_server_url)
+        input_box = self.browser.find_element_by_id("id_new_item")
+        input_box.send_keys('东东在学习英语')
+        input_box.send_keys(Keys.ENTER)
+        self.wait_for_row_in_list_table('1: 东东在学习英语')
+
+        # 他注意到清单有个唯一的URL
+        dd_list_url = self.browser.current_url
+        self.assertRegex(dd_list_url, '/lists/.+')
+
+        # 现在，另外一个叫果果的用户访问了网站
+        # # 使用一个新浏览器会话
+        # # 确保东东的信息不会从cookie中泄露出去
+        self.browser.quit()
+        self.browser = webdriver.Firefox()
+
+        # 果果访问首页
+        # 页面中看不到东东的清单
+        self.browser.get(self.live_server_url)
+        page_text = self.browser.find_element_by_tag_name('body').text
+        self.assertNotIn('东东在学习英语', page_text)
+        self.assertNotIn('东东学习Python', page_text)
+
+        # 东东新输入一个待办事项，新建了一个清单
+        input_box = self.browser.find_element_by_id('id_new_item')
+        input_box.send_keys('果果喜欢喝牛奶')
+        input_box.send_keys(Keys.ENTER)
+        self.wait_for_row_in_list_table('1: 果果喜欢喝牛奶')
+
+        # 果果也获得了他唯一的URL
+        gg_list_url = self.browser.current_url
+        self.assertRegex(gg_list_url, '/lists/.+')
+        self.assertNotEqual(gg_list_url, dd_list_url)
+
+        # 这个页面还是没有东东的清单
+        page_text = self.browser.find_element_by_tag_name('body').text
+        self.assertNotIn('东东学习Django', page_text)
+        self.assertIn('果果喜欢喝牛奶', page_text)
+
+        # 两人都很满意，然后去睡觉了
