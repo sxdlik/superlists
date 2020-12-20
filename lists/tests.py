@@ -11,24 +11,6 @@ class HomePageTest(TestCase):
         response = self.client.get('/')
         self.assertTemplateUsed(response, 'home.html')
 
-    def test_can_save_a_POST_request(self):
-        """ 测试 POST 请求能够保存数据 """
-        self.client.post('/', data={'item_text': 'A new list item'})
-        self.assertEqual(Item.objects.count(), 1)
-        new_item = Item.objects.first()
-        self.assertEqual(new_item.text, 'A new list item')
-
-    def test_redirects_after_POST(self):
-        """ 测试 post 请求后重定向 """
-        response = self.client.post('/', data={'item_text': 'A new list item'})
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(response['location'], '/lists/the-only-list-in-the-world/')
-
-    def test_only_saves_items_when_necessary(self):
-        """ 测试 get 方法不写数据库 """
-        self.client.get('/')
-        self.assertEqual(Item.objects.count(), 0)
-
 
 class ListViewTest(TestCase):
     """ 列表视图测试 """
@@ -47,6 +29,22 @@ class ListViewTest(TestCase):
 
         self.assertContains(response, 'item 1')
         self.assertContains(response, 'item 2')
+
+
+class NewListTest(TestCase):
+    """ 新增列表测试 """
+
+    def test_can_save_a_POST_request(self):
+        """ 测试 POST 请求能够保存数据 """
+        self.client.post('/lists/new/', data={'item_text': 'A new list item'})
+        self.assertEqual(Item.objects.count(), 1)
+        new_item = Item.objects.first()
+        self.assertEqual(new_item.text, 'A new list item')
+
+    def test_redirects_after_POST(self):
+        """ 测试 post 请求后重定向 """
+        response = self.client.post('/lists/new/', data={'item_text': 'A new list item'})
+        self.assertRedirects(response, '/lists/the-only-list-in-the-world/')
 
 
 class ItemModelTest(TestCase):
