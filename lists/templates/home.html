@@ -1,12 +1,5 @@
-<html>
-<head>
-  <title>待办事项列表</title>
-</head>
-<body>
-  <h1>开启一个待办事项列表</h1>
-  <form method="POST" action="/lists/new/">
-    {% csrf_token %}
-    <input name="item_text" id="id_new_item" placeholder="请输入你的待办事项">
-  </form>
-</body>
-</html>
+{% extends 'base.html' %}
+
+{% block header_text %}启动一个新的待办事项列表{% endblock %}
+
+{% block form_action %}/lists/new/{% endblock %}
